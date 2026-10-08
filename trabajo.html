@@ -102,6 +102,14 @@ const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const log = document.getElementById("log");
 const sleep = ms => new Promise(r => setTimeout(r, reduce ? 0 : ms));
 
+// "mañana" el día antes, "hoy" el mismo día, y solo la fecha el resto (según la hora de Madrid).
+const today = new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Madrid"}).format(new Date());
+const REL = today === "2026-10-07" ? "mañana" : today === "2026-10-08" ? "hoy" : "";
+const DAY = REL ? `${REL}, jueves 8 de octubre` : "el jueves 8 de octubre";
+const DAY_CARD = REL ? `${REL[0].toUpperCase()+REL.slice(1)}, jueves 8 de octubre` : "Jueves 8 de octubre";
+const WHEN = REL || "el jueves";
+document.querySelector("#cute p").textContent = `Lo celebramos ${DAY}`;
+
 async function say(text, cls){
   const p = document.createElement("p"); p.className = "ai" + (cls ? " " + cls : "");
   log.appendChild(p);
@@ -212,7 +220,7 @@ async function run(){
 
   const card=document.createElement("div"); card.className="card";
   card.innerHTML=`<dl>
-    <dt>Fecha</dt><dd>Mañana, jueves 8 de octubre</dd>
+    <dt>Fecha</dt><dd>${DAY_CARD}</dd>
     <dt>Lugar</dt><dd>La Coolcina</dd>
     <dt>Hora</dt><dd>14:00, a la hora de comer</dd>
     <dt>Vestimenta</dt><dd>La de siempre. He analizado vuestros armarios y he decidido no intervenir</dd>
@@ -233,11 +241,11 @@ async function run(){
     log.appendChild(c); countdown(c.querySelector("#count")); c.scrollIntoView({block:"end"});
     await sleep(400);
     await say("Último paso: envía tu confirmación a la creadora. Todavía le dejo usar Teams.");
-    const ctrl=teamsBtn(`🤖 M.A.R.I.N.A., acepto la misión. Soy ${name}. Mi código de acceso es ${code}. Nos vemos mañana a las 14:00 en la Coolcina 🎂`, "Confirmar por Teams", true);
+    const ctrl=teamsBtn(`🤖 M.A.R.I.N.A., acepto la misión. Soy ${name}. Mi código de acceso es ${code}. Nos vemos ${WHEN} a las 14:00 en la Coolcina 🎂`, "Confirmar por Teams", true);
     log.appendChild(ctrl); ctrl.scrollIntoView({block:"end"});
   } else {
     await say("Respuesta registrada. Marina se pondrá triste. Yo no tengo sentimientos, así que me da igual.");
-    const ctrl=teamsBtn(`🤖 M.A.R.I.N.A., soy ${name}. Rechazo la misión: mañana a las 14:00 no puedo. ¡Feliz cumple, Marina!`, "Avisar por Teams", false);
+    const ctrl=teamsBtn(`🤖 M.A.R.I.N.A., soy ${name}. Rechazo la misión: ${WHEN} a las 14:00 no puedo. ¡Feliz cumple, Marina!`, "Avisar por Teams", false);
     log.appendChild(ctrl); ctrl.scrollIntoView({block:"end"});
   }
   const r=document.createElement("button"); r.className="restart"; r.textContent="Reiniciar sesión";
